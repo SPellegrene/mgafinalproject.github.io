@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8">
+    <title>New Student Application</title>
+  </head>
+  <body>
+    <header>
+      <img src="assets/image 5.png" alt="University Logo">
+    </header>
+    <div class="appContainer">
+      <div class="sloganContainer">
+        <h1 class="slogan">Welcome to your application.</h1>
+        <h3>Please complete and submit.</h3>
+      </div>
+      <form id="applicationForm" class="studentApp" action="index.html" method="post">
+        <label for="fname">First name:</label><br>
+        <input type="text" id="firstName" name="fname"><br>
+        <label for="lname">Last name:</label><br>
+        <input type="text" id="lastName" name="lname">
+        <p>Did one or both parent(s) attend MGA?</p>
+        <input type="radio" id="yesLegacy" name="isLegacy" value="yes">
+        <label for="yesLegacy">Yes</label><br>
+        <input type="radio" id="noLegacy" name="isLegacy" value="no">
+        <label for="noLegacy">No</label><br>
+        <input onclick="showStatus('appliedStatus')" role ="button" type="submit" value="Submit Application">
+      </form>
+      <h3 id="appliedStatus" style="display:none;">You've Applied!</h3>
+      <a class=" btnprimary" style="display:inline-block;margin-left:48px; margin-top:52px; border:1px solid black;background-color:white;padding:5px 15px;" href="index.html">
+        Back To Home
+      </a>
+    </div>
+
+    <!-- functionality -->
+    <script src="main.js"></script>
+    <script>
+
+    //POSTS STUDENT APPLICATION INFO
+      const formApp = document.getElementById('applicationForm');
+      formApp.addEventListener('submit', function(e){
+        e.preventDefault()
+
+        var firstName = document.getElementById('firstName').value;
+        var lastName = document.getElementById('lastName').value;
+        var yesLegacy = document.getElementById('yesLegacy').value;
+        var noLegacy = document.getElementById('noLegacy').value;
+        var legacyStatus = noLegacy;
+        if(yesLegacy) {
+          legacyStatus = yesLegacy;
+        }
+
+        //fetch post request
+        fetch('https://cors-anywhere.herokuapp.com/http://34.74.253.207:8080/applicant/create', {
+          method: 'POST',
+          headers: {
+            'Origin':'http://34.74.253.207:8080/applicant',
+            'Content-Type': 'application/json',
+            "Accept": "*/*"
+          },
+          body: JSON.stringify({
+            id: 1,
+            appStatus: "",
+            firstName:firstName,
+            lastName:lastName,
+            dob: "1/1/2020",
+            legacy: legacyStatus
+          })
+        })
+        .then(data => console.log(data))
+        .catch(error => console.log("error", error))
+      });
+
+    </script>
+
+  </body>
+</html>

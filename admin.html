@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8">
+    <title>Future Student Application</title>
+  </head>
+  <body>
+    <div class="mainContainer">
+      <header>
+        <img src="assets/image 5.png" alt="University Logo">
+      </header>
+      <div class="bodyContainer">
+        <div class="sloganContainer">
+          <h1 class="slogan">Welcome Admissions</h1>
+          <table class="table table-stripped">
+            <thead>
+              <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Legacy Student</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="data">
+            </tbody>
+          </table>
+          <h3 id="reviewedStatus" style="display: none;">You've reviewed the application.</h3>
+        </div>
+        <div class="statusBtns">
+        </div>
+        <h3 id="approveStatus" style="color: white; text-align:center;margin-top:48px; display:none;">You're decision has been sent off. Please refresh to see updated table.</h3>
+        <a class=" btnprimary" style="display:inline-block;margin-left:48px; margin-top:52px; border:1px solid black;background-color:white;padding:5px 15px;" href="index.html">
+          Back To Home
+        </a>
+      </div>
+    </div>
+
+
+    <script src="main.js"></script>
+    <script type="text/javascript">
+
+    //GETS DATA
+      fetch('https://cors-anywhere.herokuapp.com/http://34.74.253.207:8080/applicant/get', {
+        method: 'GET',
+        headers: {
+          'Origin':'http://34.74.253.207:8080/applicant',
+          'Content-Type': 'application/json',
+          "Accept": "*/*"
+        },
+      })
+      .then(function(response) {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        // Read the response as json.
+        return response.json();
+      })
+      .then(function(data) {
+        console.log(data);
+        if (data.length > 0) {
+          var temp = "";
+          var id = 0;
+          data.forEach((u)=>{
+            id = u.id;
+            temp += "<tr id='studentInfo'>";
+            temp += "<td>"+u.firstName+"</td>";
+            temp += "<td>"+u.lastName+"</td>";
+            temp += "<td>"+u.legacy+"</td>";
+            temp += "<td>"+u.appStatus+"</td>";
+            temp += "<td><button onclick='updateStatus("+u.id+")' id='approvedStatus' value='approved' style='background-color: green; color: white;'>Approve</button><button onclick='deleteSource("+u.id+")' 'type='submit' id='deniedStatus' value='denied' style='background-color: red; color: white;'>Deny</button></td></tr>";
+          })
+          document.getElementById("data").innerHTML = temp;
+        }
+      })
+      .catch(error => console.log("error", error))
+
+
+      //PATCH Approval Status
+      function updateStatus(id) {
+        var yes = document.getElementById('approvedStatus').value;
+        var approvedBanner = document.getElementById('approveStatus');
+        approvedBanner.classList.add("show");
+        //patch request
+        fetch('https://cors-anywhere.herokuapp.com/http://34.74.253.207:8080/applicant/' + id, {
+          method: 'PATCH',
+          headers: {
+            'Origin':'http://34.74.253.207:8080/applicant',
+            'Content-Type': 'application/json',
+            "Accept": "*/*"
+          },
+          body: JSON.stringify({
+            appStatus: yes, //post the new appDecision to database
+          })
+        })
+        .then(data => console.log(data))
+        .catch(error => console.log("error", error))
+      }
+
+      //DELETE DENIED STUDENTS
+      function deleteSource(id){
+        var deniedStudent = document.getElementById("studentInfo"); //remove from DOM
+        deniedStudent.remove();
+        fetch('https://cors-anywhere.herokuapp.com/http://34.74.253.207:8080/applicant/' + id,{
+          method: 'DELETE' //remove from database
+        });
+      }
+
+    </script>
+  </body>
+</html>

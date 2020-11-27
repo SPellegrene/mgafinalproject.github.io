@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8">
+    <title>Future Student Application</title>
+  </head>
+  <body class="student">
+    <div class="mainContainer">
+      <header>
+        <img src="assets/image 5.png" alt="University Logo">
+      </header>
+      <div class="bodyContainer">
+        <div class="sloganContainer">
+          <h1 class="slogan">Hello Applicant!</h1>
+          <form id="checkStatusForm" class="" action="index.html" method="post">
+            <label for="lname">Enter ID to See Status</label><br>
+            <input type="text" id="appID" name="appID"><br>
+            <input class="statusCheck btnprimary" onclick="checkStatus()" type="submit" value="Check Status">
+          </form>
+          <h3 id="nullStatus" style="display:none;">No applicants on file.</h3>
+          <table class="table table-stripped">
+            <tbody id="appData">
+            </tbody>
+          </table>
+
+          <button class=" btnprimary" onclick="showStatus('registeredStatus')" style="margin-top:56px;" type="button" name="review status button">Register for Classes</button>
+          <h3 id="registeredStatus" style="display:none;">You're registered!</h3>
+        </div>
+        <a class=" btnprimary" style="display:inline-block;margin-left:48px; margin-top:52px; border:1px solid black;background-color:white;padding:5px 15px;" href="index.html">
+          Back To Home
+        </a>
+      </div>
+    </div>
+    <script src="main.js"></script>
+    <script type="text/javascript">
+    //GET Approval Status
+    function checkStatus() {
+      const appStatus = document.getElementById('checkStatusForm');
+      appStatus.addEventListener('submit', function(e){
+        e.preventDefault()
+      //patch request
+      fetch('https://cors-anywhere.herokuapp.com/http://34.74.253.207:8080/applicant/get', {
+        method: 'GET',
+        headers: {
+          'Origin':'http://34.74.253.207:8080/applicant',
+          'Content-Type': 'application/json',
+          "Accept": "*/*"
+        },
+      })
+      .then(function(response) {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        // Read the response as json.
+        return response.json();
+      })
+      .then(function(data) {
+        console.log(data);
+        if (data.length > 0) {
+          var temp2 = "";
+          var id = 0;
+          data.forEach((i)=>{
+            temp2 += "<tr id='appInfo'>";
+            temp2 += "<td>"+i.firstName+"</td>";
+            temp2 += "<td>"+i.lastName+"</td>";
+            temp2 += "<td> is currently: "+i.appStatus+"</td></tr>";
+          })
+          document.getElementById("appData").innerHTML = temp2;
+        } else if (data.length <=0) {
+          var nullStatus = document.getElementById('nullStatus');
+          nullStatus.classList.add("show");
+          console.log("No applicants on file");
+        }
+      })
+      .catch(error => console.log("error", error))
+    })
+  };
+
+    </script>
+  </body>
+</html>
